@@ -12,6 +12,7 @@ import com.example.wang.retrofittest.bean.HttpResult;
 import com.example.wang.retrofittest.bean.Subject;
 import com.example.wang.retrofittest.http.api.MovieService;
 import com.example.wang.retrofittest.http.api.MovieService2;
+import com.example.wang.retrofittest.model.impl.TopMovieModel;
 
 import java.util.List;
 
@@ -48,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         mSubmit1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getMovie2();
+                getMovie3();
             }
         });
     }
@@ -110,4 +111,24 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void getMovie3() {
+        TopMovieModel topMovieModel = TopMovieModel.getInstance();
+        Subscriber<List<Subject>> subscriber = new Subscriber<List<Subject>>() {
+            @Override
+            public void onCompleted() {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d("getMovie2", e.getMessage());
+            }
+
+            @Override
+            public void onNext(List<Subject> subjects) {
+                mResult.setText(subjects.toString());
+            }
+        };
+        topMovieModel.getTopMovie(subscriber, 0, 3);
+    }
 }

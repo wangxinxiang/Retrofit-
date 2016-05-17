@@ -58,13 +58,18 @@ public class HttpUtil {
         return SingleHolder.INSTANCE;
     }
 
-    public<T> void getTopMovie(Subscriber<T> subscriber, int start, int count) {
-        movieService2.getTopMovie(start, count)
-                .map(new HttpResultFun<T>())
+//    public<T> void getTopMovie(Subscriber<T> subscriber, int start, int count) {
+//        movieService2.getTopMovie(start, count)
+//                .map(new HttpResultFun<T>())
+//
+//    }
 
-    }
-
-    private class HttpResultFun<T> implements Func1<HttpResult<T>, T> {
+    /**
+     * 对返回结果做通用性的判断，并返回所指定的body。
+     * 用来统一处理Http的resultCode,并将HttpResult的Data部分剥离出来返回给subscriber
+     * @param <T>
+     */
+    public static class HttpResultFun<T> implements Func1<HttpResult<T>, T> {
 
         @Override
         public T call(HttpResult<T> tHttpResult) {
@@ -73,5 +78,12 @@ public class HttpUtil {
             }
             return tHttpResult.getSubjects();
         }
+    }
+
+    /**
+     * 返回MovieService2，接下来的步骤，由使用者进行定制使用。
+     */
+    public MovieService2 getMovieService2() {
+        return movieService2;
     }
 }

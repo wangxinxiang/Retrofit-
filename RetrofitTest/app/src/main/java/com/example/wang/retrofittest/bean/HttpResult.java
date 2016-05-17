@@ -1,9 +1,9 @@
 package com.example.wang.retrofittest.bean;
 
-import java.util.List;
 
 /**
  * Created by busr on 2016/5/12.
+ * 通用POJO，泛型存放主要内容。
  */
 public class HttpResult<T> {
 
