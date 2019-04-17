@@ -8,12 +8,11 @@ import com.example.wang.retrofittest.http.api.MovieService2;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import io.reactivex.functions.Function;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
-import rx.Subscriber;
-import rx.functions.Func1;
 
 /**
  * Created by busr on 2016/5/13.
@@ -28,8 +27,6 @@ public class HttpUtil {
 
     private Retrofit mRetrofit;
 
-    private MovieService2 movieService2;
-
     private HttpUtil() {
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
@@ -37,11 +34,9 @@ public class HttpUtil {
         mRetrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                .client(builder.build())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(builder.build())        //retrofit2默认使用OkHttp，不需要这部设置了
                 .build();
-
-        movieService2 = mRetrofit.create(MovieService2.class);
     }
 
     /**
@@ -69,10 +64,10 @@ public class HttpUtil {
      * 用来统一处理Http的resultCode,并将HttpResult的Data部分剥离出来返回给subscriber
      * @param <T>
      */
-    public static class HttpResultFun<T> implements Func1<HttpResult<T>, T> {
+    public static class HttpResultFun<T> implements Function<HttpResult<T>, T> {
 
         @Override
-        public T call(HttpResult<T> tHttpResult) {
+        public T apply(HttpResult<T> tHttpResult) throws Exception {
             if (tHttpResult.getCount() == 0) {
                 throw new ApiException(100);
             }
@@ -80,10 +75,7 @@ public class HttpUtil {
         }
     }
 
-    /**
-     * 返回MovieService2，接下来的步骤，由使用者进行定制使用。
-     */
-    public MovieService2 getMovieService2() {
-        return movieService2;
+    public <T> T createApi(Class<T> service){
+        return mRetrofit.create(service);
     }
 }

@@ -6,12 +6,14 @@ import com.example.wang.retrofittest.http.HttpUtil;
 import com.example.wang.retrofittest.http.api.MovieService2;
 import com.example.wang.retrofittest.model.ITopMovie;
 
+import org.reactivestreams.Subscriber;
+
 import java.util.List;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by busr on 2016/5/16.
@@ -26,8 +28,8 @@ public class TopMovieModel implements ITopMovie {
     public static TopMovieModel getInstance () {return TopMovieHolder.INSTANCE;}
 
     @Override
-    public void getTopMovie(Subscriber<List<Subject>> subscriber, int start, int count) {
-        MovieService2 movieService2 = mHttpUtil.getMovieService2();
+    public void getTopMovie(Observer<List<Subject>> subscriber, int start, int count) {
+        MovieService2 movieService2 = mHttpUtil.createApi(MovieService2.class);
         Observable<HttpResult<List<Subject>>> observable = movieService2.getTopMovie(start, count);
 
         observable.map(new HttpUtil.HttpResultFun<List<Subject>>())

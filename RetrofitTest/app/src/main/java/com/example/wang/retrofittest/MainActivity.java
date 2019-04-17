@@ -14,17 +14,24 @@ import com.example.wang.retrofittest.http.api.MovieService;
 import com.example.wang.retrofittest.http.api.MovieService2;
 import com.example.wang.retrofittest.model.impl.TopMovieModel;
 
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
+
+import java.io.IOException;
 import java.util.List;
 
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -49,7 +56,26 @@ public class MainActivity extends AppCompatActivity {
         mSubmit1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getMovie3();
+                getMovie4();
+            }
+        });
+    }
+
+    private void getMovie4() {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(baseUrl + "top250")
+                .build();
+        okhttp3.Call call = client.newCall(request);
+        call.enqueue(new okhttp3.Callback() {
+            @Override
+            public void onFailure(okhttp3.Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                mResult.setText(response.body().string());
             }
         });
     }
@@ -85,22 +111,28 @@ public class MainActivity extends AppCompatActivity {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build();
         MovieService2 movieService2 = retrofit.create(MovieService2.class);
 
         movieService2.getTopMovie(0,1)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<HttpResult<List<Subject>>>() {
-                    @Override
-                    public void onCompleted() {
-
-                    }
+                .subscribe(new Observer<HttpResult<List<Subject>>>() {
 
                     @Override
                     public void onError(Throwable e) {
                         Log.d("getMovie2", e.getMessage());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
                     }
 
                     @Override
@@ -113,15 +145,22 @@ public class MainActivity extends AppCompatActivity {
 
     private void getMovie3() {
         TopMovieModel topMovieModel = TopMovieModel.getInstance();
-        Subscriber<List<Subject>> subscriber = new Subscriber<List<Subject>>() {
-            @Override
-            public void onCompleted() {
+        Observer<List<Subject>> subscriber = new Observer<List<Subject>>() {
 
-            }
 
             @Override
             public void onError(Throwable e) {
                 Log.d("getMovie2", e.getMessage());
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+
+            @Override
+            public void onSubscribe(Disposable d) {
+
             }
 
             @Override
